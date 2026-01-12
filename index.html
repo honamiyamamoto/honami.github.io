@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Slide Assistant</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="main-container">
+        <!-- PowerPoint Slide Preview (Left) -->
+        <div id="slide-preview" class="slide-preview-area">
+            <div class="slide-viewport">
+                <!-- Dummy Slide Content -->
+                <div class="ppt-slide">
+                    <div class="slide-title">Q3 Financial Results</div>
+                    <div class="slide-body">
+                        <ul>
+                            <li>Revenue grew by 20% YoY.</li>
+                            <li>New product launch successful.</li>
+                            <li>Client satisfaction at all time high.</li>
+                        </ul>
+                        <div class="slide-chart-placeholder">
+                            <svg width="100%" height="100%" viewBox="0 0 200 100">
+                                <rect x="20" y="40" width="30" height="60" fill="#E5E7EB" />
+                                <rect x="70" y="20" width="30" height="80" fill="#E5E7EB" />
+                                <rect x="120" y="50" width="30" height="50" fill="#E5E7EB" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="slide-footer">Confidential - 2024</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resizer Handle (Vertical) -->
+        <div id="resizer-main" class="resizer-vertical"></div>
+
+        <!-- Task Pane (Right) -->
+        <div id="task-pane" class="task-pane">
+            <!-- (A) Header -->
+            <header class="app-header">
+                <div class="header-top">
+                    <div class="header-left">
+                        <div class="robot-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 4C16.42 4 20 7.58 20 12C20 16.42 16.42 20 12 20C7.58 20 4 16.42 4 12C4 7.58 7.58 4 12 4Z"
+                                    fill="#4B5563" />
+                                <circle cx="9" cy="11" r="1.5" fill="#4B5563" />
+                                <circle cx="15" cy="11" r="1.5" fill="#4B5563" />
+                                <path d="M9 16C9 16 10 17 12 17C14 17 15 16 15 16" stroke="#4B5563" stroke-width="1.5"
+                                    stroke-linecap="round" />
+                            </svg>
+                        </div>
+                        <div class="header-text">
+                            <h1 class="app-title">AI スライドアシスタント</h1>
+                            <p class="app-subtitle">スライド作成支援と資料自動生成</p>
+                        </div>
+                    </div>
+                    <div class="header-right">
+                        <div id="target-chip" class="target-chip" role="button" tabindex="0">
+                            対象: 現在のスライド
+                        </div>
+                        <!-- Dropdown Menu for Target -->
+                        <div id="target-menu" class="target-menu hidden">
+                            <div class="menu-item active" data-value="current">現在のスライド</div>
+                            <div class="menu-item disabled" data-value="selection">選択テキスト</div>
+                            <div class="menu-item" data-value="all">全スライド</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- (B) Tabs -->
+            <nav class="tabs">
+                <button class="tab-button active" data-tab="slide-support">
+                    <span class="tab-icon">⚡</span> スライド支援
+                </button>
+                <button class="tab-button" data-tab="doc-generation">
+                    <span class="tab-icon">✨</span> 資料自動生成
+                </button>
+            </nav>
+
+            <!-- (C) Main Content -->
+            <main class="main-content">
+                <!-- Tab 1: Slide Support -->
+                <div id="slide-support-view" class="tab-content active">
+                    <div class="model-selector-container">
+                        <select id="model-select-support" class="model-select">
+                            <option value="gemini-high">Gemini 3 Pro (High)</option>
+                            <option value="gemini-mid">Gemini 3 Flash</option>
+                            <option value="gemini-lite">Gemini 3 Lite</option>
+                        </select>
+                    </div>
+                    <div id="chat-history" class="chat-history">
+                        <!-- Empty State -->
+                        <div id="empty-state" class="empty-state">
+                            <div class="empty-icon">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z"
+                                        stroke="#9CA3AF" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" />
+                                </svg>
+                            </div>
+                            <h3>AI スライドアシスタント</h3>
+                            <p>スライドの改善や分析をサポートします</p>
+                        </div>
+                    </div>
+
+                    <!-- Template Panel (Overlay) -->
+                    <div id="template-panel" class="template-panel hidden">
+                        <div id="resizer-template" class="resizer-horizontal"></div>
+                        <div class="panel-header">
+                            <h3>よく使う指示</h3>
+                            <div class="panel-actions">
+                                <button id="add-template-btn" class="icon-btn-small" title="追加">＋</button>
+                                <button id="close-template-panel" class="close-btn">×</button>
+                            </div>
+                        </div>
+                        <div class="template-list">
+
+                            <button class="template-item" data-text="このスライドのタイトル案を5つ提案して">
+                                <span class="icon">📝</span>
+                                <div class="text">
+                                    <span class="title">タイトル生成</span>
+                                    <span class="desc">メッセージ性の高いタイトルを提案</span>
+                                </div>
+                            </button>
+                            <button class="template-item" data-text="この内容を構造化して整理して">
+                                <span class="icon">🏗️</span>
+                                <div class="text">
+                                    <span class="title">構造化</span>
+                                    <span class="desc">論点を整理してスライド構造にする</span>
+                                </div>
+                            </button>
+                            <button class="template-item" data-text="このスライドの品質をチェックして指摘して">
+                                <span class="icon">✅</span>
+                                <div class="text">
+                                    <span class="title">品質チェック</span>
+                                    <span class="desc">抜け漏れや分かりにくさを指摘</span>
+                                </div>
+                            </button>
+                            <button class="template-item" data-text="この内容を経営層向けに要約して">
+                                <span class="icon">✂️</span>
+                                <div class="text">
+                                    <span class="title">要約作成</span>
+                                    <span class="desc">経営層向けに短くする</span>
+                                </div>
+                            </button>
+                            <button class="template-item" data-text="このデータから何が言えるかインサイトを出して">
+                                <span class="icon">💡</span>
+                                <div class="text">
+                                    <span class="title">インサイト抽出</span>
+                                    <span class="desc">示唆を文章化する</span>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Document Generation -->
+                <div id="doc-generation-view" class="tab-content">
+                    <div class="model-selector-container">
+                        <select id="model-select-gen" class="model-select">
+                            <option value="gemini-high">Gemini 3 Pro (High)</option>
+                            <option value="gemini-mid">Gemini 3 Flash</option>
+                            <option value="gemini-lite">Gemini 3 Lite</option>
+                        </select>
+                    </div>
+
+                    <div class="accordion-container">
+                        <!-- 1. Instruction (Required) -->
+                        <div class="accordion-item open" id="acc-instruction">
+                            <div class="accordion-header">
+                                <span class="acc-title">指示・メッセージ <span class="required-badge">必須</span></span>
+                                <span class="acc-arrow">▶</span>
+                            </div>
+                            <div class="accordion-content">
+                                <textarea id="gen-instruction"
+                                    placeholder="例：新製品「Alpha」の販売戦略について、市場分析とターゲット選定を含めて提案資料を作成してください。"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- 2. Created Material (Required) - Renamed from Usage -->
+                        <div class="accordion-item open" id="acc-usage">
+                            <div class="accordion-header">
+                                <span class="acc-title">作成資料 <span class="required-badge">必須</span></span>
+                                <span class="acc-arrow">▶</span>
+                            </div>
+                            <div class="accordion-content">
+                                <div class="tile-grid single-col">
+                                    <button class="tile-option selected"
+                                        data-value="system-policy">システム導入方針決定資料</button>
+                                </div>
+                                <input type="hidden" id="gen-usage" value="system-policy">
+                            </div>
+                        </div>
+
+                        <!-- 3. Design (Optional) -->
+                        <div class="accordion-item" id="acc-design">
+                            <div class="accordion-header">
+                                <span class="acc-title">デザイン <span class="optional-badge">任意</span></span>
+                                <span class="acc-arrow">▶</span>
+                            </div>
+                            <div class="accordion-content hidden">
+                                <label>カラー選択</label>
+                                <select id="gen-color">
+                                    <option value="auto">未指定（自動）</option>
+                                    <option value="blue">ブルー（信頼）</option>
+                                    <option value="navy">ネイビー（堅実）</option>
+                                    <option value="green">グリーン（成長）</option>
+                                    <option value="red">レッド（情熱）</option>
+                                    <option value="orange">オレンジ（活気）</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 4. Options (Optional) -->
+                        <div class="accordion-item" id="acc-options">
+                            <div class="accordion-header">
+                                <span class="acc-title">オプション <span class="optional-badge">任意</span></span>
+                                <span class="acc-arrow">▶</span>
+                            </div>
+                            <div class="accordion-content hidden">
+                                <div class="form-group">
+                                    <label>ページ数目安</label>
+                                    <div class="segment-control">
+                                        <button class="segment" data-value="auto">自動</button>
+                                        <button class="segment" data-value="short">5-7P</button>
+                                        <button class="segment" data-value="medium">10-15P</button>
+                                        <button class="segment" data-value="long">20-30P</button>
+                                    </div>
+                                    <input type="hidden" id="gen-pages" value="auto">
+                                </div>
+                                <div class="form-group">
+                                    <label>追加コンテンツ</label>
+                                    <div class="checkbox-group">
+                                        <label class="checkbox-label"><input type="checkbox" value="graph"> グラフ</label>
+                                        <label class="checkbox-label"><input type="checkbox" value="gantt">
+                                            ガントチャート</label>
+                                        <label class="checkbox-label"><input type="checkbox" value="risk"> リスク分析</label>
+                                        <label class="checkbox-label"><input type="checkbox" value="budget">
+                                            予算計画</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 5. Reference (Optional) -->
+                        <div class="accordion-item" id="acc-reference">
+                            <div class="accordion-header">
+                                <span class="acc-title">参考資料 <span class="optional-badge">任意</span></span>
+                                <span class="acc-arrow">▶</span>
+                            </div>
+                            <div class="accordion-content hidden">
+                                <div class="file-upload-area" id="file-drop-zone">
+                                    <div class="upload-placeholder">
+                                        <span>📁 ファイルを選択またはドラッグ</span>
+                                    </div>
+                                    <input type="file" id="file-input" multiple style="display:none;">
+                                </div>
+                                <ul id="file-list" class="file-list"></ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Generation Result Overlay/Container -->
+                    <div id="generation-result" class="generation-result hidden">
+                        <div class="result-card">
+                            <div class="result-icon">✨</div>
+                            <h3>生成完了</h3>
+                            <p>資料の生成が完了しました。</p>
+                            <div class="result-actions">
+                                <button class="action-btn primary" id="btn-open-result">開く (ダミー)</button>
+                                <button class="action-btn secondary" id="btn-regen-result">再生成</button>
+                                <button class="action-btn text" id="btn-edit-condition">条件を編集</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Resizer for Footer (Chat Input) -->
+            <div id="resizer-footer" class="resizer-horizontal"></div>
+
+            <!-- (D) Footer Actions -->
+            <footer class="app-footer" id="app-footer">
+                <!-- Slide Support Footer -->
+                <div id="slide-support-footer" class="footer-content active">
+                    <div class="chat-input-area">
+                        <button id="template-btn" class="icon-btn" title="よく使う指示">⚡</button>
+                        <textarea id="chat-input" placeholder="スライドについて質問や指示を入力…" rows="1"></textarea>
+                        <button id="send-btn" class="send-btn" disabled>送信</button>
+                    </div>
+                </div>
+
+                <!-- Doc Generation Footer -->
+                <div id="doc-generation-footer" class="footer-content">
+                    <button id="generate-btn" class="generate-btn" disabled>
+                        <span class="btn-text">資料を生成</span>
+                        <span class="spinner hidden"></span>
+                    </button>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirm-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <h3 class="modal-title">資料生成の確認</h3>
+            <div class="modal-body">
+                <p>入力された内容で資料を生成しますか？<br>生成には時間がかかる場合があります。</p>
+            </div>
+            <div class="modal-actions">
+                <button class="action-btn secondary" id="modal-cancel">キャンセル</button>
+                <button class="action-btn primary" id="modal-confirm">生成する</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Template Registration Modal -->
+    <div id="template-modal" class="modal-overlay hidden">
+        <div class="modal-card" style="max-width: 500px;">
+            <h3 class="modal-title">よく使う指示を登録</h3>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>タイトル <span class="required-badge">必須</span></label>
+                    <input type="text" id="tmpl-title" class="form-input" placeholder="例：議事録要約">
+                </div>
+                <div class="form-group">
+                    <label>説明（リスト表示用）</label>
+                    <input type="text" id="tmpl-desc" class="form-input" placeholder="例：会議の議事録を簡潔にまとめます">
+                </div>
+                <div class="form-group">
+                    <label>指示内容（プロンプト） <span class="required-badge">必須</span></label>
+                    <textarea id="tmpl-body" class="form-textarea large"
+                        placeholder="ここにAIへの詳細な指示を入力してください..."></textarea>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="action-btn secondary" id="tmpl-cancel">キャンセル</button>
+                <button class="action-btn primary" id="tmpl-save">登録する</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">生成が完了しました</div>
+
+    <script src="script.js" defer></script>
+</body>
+
+</html>
