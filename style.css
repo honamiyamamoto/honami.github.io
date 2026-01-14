@@ -266,7 +266,8 @@ body {
 
 .tab-content {
     display: none;
-    height: 100%;
+    flex: 1;
+    min-height: 0;
     flex-direction: column;
     /* content usually needs flex to organize children (chat vs panel) */
 }
@@ -528,6 +529,9 @@ body {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-sm);
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
 }
 
 .accordion-item {
@@ -535,6 +539,7 @@ body {
     border: 1px solid var(--border-color);
     border-radius: 8px;
     overflow: hidden;
+    flex-shrink: 0;
 }
 
 .accordion-header {
@@ -805,67 +810,54 @@ select {
 }
 
 .footer-content.active {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
-.chat-input-area {
+.chat-input-container {
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 12px;
+    background-color: white;
     display: flex;
+    flex-direction: column;
     gap: 8px;
-    align-items: flex-end;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    height: 100%;
+    /* Fill the footer content */
+    flex: 1;
 }
 
-.icon-btn {
-    background: none;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: var(--accent-color);
-    font-size: 18px;
-    flex-shrink: 0;
-}
-
-.icon-btn:hover {
-    background-color: #FFFBEB;
-    border-color: var(--accent-color);
-}
-
-.icon-btn-small {
-    background: none;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: var(--primary-color);
-    font-size: 14px;
-    padding: 0;
-    margin-right: 8px;
-    /* Spacing from Close button */
-}
-
-.icon-btn-small:hover {
-    background-color: #EFF6FF;
+.chat-input-container:focus-within {
     border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
 }
 
 #chat-input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    padding: 0;
+    font-family: inherit;
+    font-size: 14px;
+    resize: none;
+    min-height: 24px;
+    /* max-height removed to allow full expansion */
+    outline: none;
+    box-shadow: none;
     flex: 1;
-    min-height: 36px;
-    height: 36px;
-    max-height: 100px;
-    /* Expandable */
-    padding: 8px 10px;
-    font-size: 13px;
-    border-radius: 18px;
-    /* Chat bubble style */
+    /* Take up remaining space */
+}
+
+.chat-controls-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+    /* Prevent shrinking */
+    margin-top: auto;
+    /* Push to bottom if needed, though flex:1 on input does the job */
 }
 
 /* Resizers */
@@ -1072,23 +1064,34 @@ select {
 }
 
 
-.send-btn {
-    background-color: var(--primary-color);
+/* New Send Button Style */
+.send-btn-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background-color: #dcb386;
+    /* Approximate color from image */
     color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border: none;
-    border-radius: 18px;
-    padding: 8px 16px;
-    font-size: 13px;
-    font-weight: 500;
-    height: 36px;
     cursor: pointer;
+    transition: all 0.2s;
+    padding: 0;
     flex-shrink: 0;
 }
 
-.send-btn:disabled {
+.send-btn-icon:hover:not(:disabled) {
+    background-color: #cda275;
+    transform: translateY(-1px);
+}
+
+.send-btn-icon:disabled {
     background-color: #E5E7EB;
     color: #9CA3AF;
     cursor: not-allowed;
+    transform: none;
 }
 
 .generate-btn {
@@ -1127,4 +1130,255 @@ select {
     to {
         transform: rotate(360deg);
     }
+}
+
+/* --- Color Picker Trigger --- */
+.color-picker-trigger {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    background-color: #fff;
+    transition: background-color 0.2s;
+}
+
+.color-picker-trigger:hover {
+    background-color: #f9fafb;
+}
+
+.color-preview {
+    width: 36px;
+    height: 36px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background-color: #2e66af;
+    /* Default */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.color-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.color-info .label {
+    font-size: 11px;
+    color: #666;
+}
+
+.color-info .value {
+    font-size: 14px;
+    font-family: monospace;
+    color: #333;
+    font-weight: 500;
+}
+
+.trigger-hex-input {
+    font-size: 14px;
+    font-family: monospace;
+    color: #333;
+    font-weight: 500;
+    border: 1px solid transparent;
+    /* Show border on focus/hover if needed, or keep transparent */
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    width: 70px;
+    /* Adjust as needed */
+    outline: none;
+    cursor: text;
+}
+
+.trigger-hex-input:hover,
+.trigger-hex-input:focus {
+    border-bottom: 1px solid #ddd;
+    /* Subtle indication */
+}
+
+/* --- Color Picker Popover --- */
+.color-picker-popover {
+    position: absolute;
+    /* Relative to container or positioned via JS */
+    z-index: 1000;
+    width: 240px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border: 1px solid #e5e7eb;
+    padding: 12px;
+    margin-top: 8px;
+    user-select: none;
+}
+
+.color-picker-popover.hidden {
+    display: none;
+}
+
+/* SV Panel (Saturation/Value) */
+.sv-panel {
+    position: relative;
+    width: 100%;
+    height: 150px;
+    background-color: red;
+    /* Base Hue */
+    border-radius: 4px;
+    margin-bottom: 12px;
+    cursor: crosshair;
+}
+
+.sv-bg-white {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to right, #fff, rgba(255, 255, 255, 0));
+}
+
+.sv-bg-black {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to top, #000, rgba(0, 0, 0, 0));
+}
+
+.sv-cursor {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+    transform: translate(-50%, -50%);
+    top: 0;
+    left: 100%;
+    pointer-events: none;
+}
+
+/* Controls (Hue, Eyedropper, Preview) */
+.picker-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.eyedropper-btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #f3f4f6;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.eyedropper-btn:hover {
+    background: #e5e7eb;
+}
+
+.color-preview-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #2e66af;
+    border: 1px solid #ccc;
+    flex-shrink: 0;
+}
+
+.hue-slider-container {
+    flex-grow: 1;
+    height: 12px;
+    position: relative;
+}
+
+.hue-slider {
+    width: 100%;
+    height: 100%;
+    border-radius: 6px;
+    background: linear-gradient(to right, red, #ff0, lime, cyan, blue, #f0f, red);
+    cursor: pointer;
+    position: relative;
+}
+
+.hue-thumb {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    top: 50%;
+    transform: translate(-50%, -50%);
+    /* Initial position logic in JS */
+}
+
+/* RGB & HEX Inputs */
+.rgb-inputs {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    /* Align bottom */
+}
+
+.hex-input-group {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 0 4px;
+    background: #fff;
+    flex: 2;
+    /* Wider than RGB inputs */
+    height: 38px;
+    /* Match assumed height of RGB group including label */
+    margin-bottom: 17px;
+    /* Align with input box of RGB (label height approx) */
+}
+
+.hex-prefix {
+    color: #666;
+    font-size: 13px;
+    margin-right: 2px;
+}
+
+.hex-input-group input {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-family: monospace;
+    font-size: 13px;
+    text-transform: uppercase;
+    color: #333;
+}
+
+.rgb-input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+}
+
+.rgb-input-group input {
+    width: 100%;
+    padding: 4px;
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.rgb-input-group label {
+    font-size: 11px;
+    color: #666;
 }
