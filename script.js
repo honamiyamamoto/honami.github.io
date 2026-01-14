@@ -11,8 +11,7 @@ const defaultState = {
         instruction: '',
         usage: null,
         design: 'auto',
-        pages: 'auto',
-        options: [],
+        design: 'auto',
         reference: '',
         files: []
     },
@@ -97,12 +96,32 @@ function cacheDomElements() {
         inputs: {
             instruction: document.getElementById('gen-instruction'),
             usage: document.getElementById('gen-usage'),
-            design: document.getElementById('gen-color'),
-            pages: document.getElementById('gen-pages')
+            // removed old select
+        },
+        // Color Picker Elements
+        colorPicker: {
+            trigger: document.getElementById('color-picker-trigger'),
+            popover: document.getElementById('color-picker-popover'),
+            previewBox: document.getElementById('current-color-preview'),
+            triggerInput: document.getElementById('trigger-hex-input'),
+            hiddenInput: document.getElementById('gen-color'),
+
+            svPanel: document.getElementById('sv-panel'),
+            svCursor: document.getElementById('sv-cursor'),
+
+            hueSlider: document.getElementById('hue-slider'),
+            hueThumb: document.getElementById('hue-thumb'),
+
+            eyedropperBtn: document.getElementById('eyedropper-btn'),
+            pickerPreview: document.getElementById('picker-preview-circle'),
+
+            inputR: document.getElementById('input-r'),
+            inputG: document.getElementById('input-g'),
+            inputB: document.getElementById('input-b'),
+            inputHex: document.getElementById('input-hex')
         },
         tiles: document.querySelectorAll('.tile-option'),
-        segments: document.querySelectorAll('.segment'),
-        checkboxes: document.querySelectorAll('input[type="checkbox"]'),
+        tiles: document.querySelectorAll('.tile-option'),
         generateBtn: document.getElementById('generate-btn'),
         modelSelectGen: document.getElementById('model-select-gen'),
 
@@ -306,9 +325,7 @@ function attachEventListeners() {
 
     els.chatInput.addEventListener('input', () => {
         els.sendBtn.disabled = els.chatInput.value.trim() === '';
-        // 自動高さ調整
-        els.chatInput.style.height = 'auto';
-        els.chatInput.style.height = els.chatInput.scrollHeight + 'px';
+        // 自動高さ調整は手動リサイズと競合するため削除
     });
 
     els.chatInput.addEventListener('keydown', (e) => {
@@ -479,27 +496,72 @@ function attachEventListeners() {
         });
     });
 
-    els.inputs.design.addEventListener('change', (e) => {
-        state.genForm.design = e.target.value;
-        saveState();
-    });
+    // --- Color Picker Events ---
+    if (els.colorPicker && els.colorPicker.trigger) {
+        // Toggle Popover
+        els.colorPicker.trigger.addEventListener('click', (e) => {
+            // If clicking the input, ignore (let input handle focus)
+            if (e.target.classList.contains('trigger-hex-input')) return;
 
-    els.segments.forEach(seg => {
-        seg.addEventListener('click', () => {
-            els.segments.forEach(s => s.classList.remove('selected'));
-            seg.classList.add('selected');
-            state.genForm.pages = seg.dataset.value;
-            saveState();
-        });
-    });
+            e.stopPropagation();
+            const popover = els.colorPicker.popover;
 
-    els.checkboxes.forEach(cb => {
-        cb.addEventListener('change', () => {
-            const checked = Array.from(els.checkboxes).filter(c => c.checked).map(c => c.value);
-            state.genForm.options = checked;
-            saveState();
+            if (popover.classList.contains('hidden')) {
+                // Show and position
+                popover.classList.remove('hidden');
+
+                // Get trigger position
+                const rect = els.colorPicker.trigger.getBoundingClientRect();
+
+                // Apply fixed positioning
+                popover.style.position = 'fixed';
+                popover.style.top = `${rect.bottom + 8}px`; // 8px margin
+                popover.style.left = `${rect.left}px`;
+                popover.style.zIndex = '9999';
+
+                // Prevent overflowing right edge
+                const popRect = popover.getBoundingClientRect();
+                if (rect.left + popRect.width > window.innerWidth) {
+                    popover.style.left = `${window.innerWidth - popRect.width - 20}px`;
+                }
+
+                // Prevent overflowing bottom edge (flip to top if needed)
+                if (rect.bottom + popRect.height > window.innerHeight) {
+                    popover.style.top = `${rect.top - popRect.height - 8}px`;
+                }
+
+            } else {
+                popover.classList.add('hidden');
+            }
         });
-    });
+
+        // Close when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!els.colorPicker.popover.classList.contains('hidden') &&
+                !els.colorPicker.popover.contains(e.target) &&
+                !els.colorPicker.trigger.contains(e.target)) {
+                els.colorPicker.popover.classList.add('hidden');
+            }
+        });
+
+        // Eyedropper
+        if (window.EyeDropper) {
+            els.colorPicker.eyedropperBtn.addEventListener('click', async () => {
+                const eyeDropper = new EyeDropper();
+                try {
+                    const result = await eyeDropper.open();
+                    setColorFromHex(result.sRGBHex);
+                } catch (e) {
+                    console.log('Eyedropper cancelled', e);
+                }
+            });
+        } else {
+            els.colorPicker.eyedropperBtn.style.display = 'none'; // Not supported
+        }
+
+        // Color Logic Setup
+        setupColorPickerInteractions();
+    } // End if colorPicker
 
     // ファイルアップロード制御
     if (els.fileDropZone) {
@@ -808,20 +870,12 @@ function restoreForm() {
         if (els.inputs.usage) els.inputs.usage.value = state.genForm.usage;
     }
 
-    if (els.inputs.design) els.inputs.design.value = state.genForm.design || 'auto';
-
-    if (els.segments) {
-        els.segments.forEach(s => {
-            if (s.dataset.value === state.genForm.pages) s.classList.add('selected');
-            else s.classList.remove('selected');
-        });
+    // デザイン復元（カラーピッカー）
+    if (state.genForm.design && els.colorPicker) {
+        setColorFromHex(state.genForm.design);
     }
 
-    if (els.checkboxes) {
-        els.checkboxes.forEach(c => {
-            if (state.genForm.options && state.genForm.options.includes(c.value)) c.checked = true;
-        });
-    }
+
 
     // referenceはinput要素が存在しないため削除
 
@@ -990,6 +1044,244 @@ function showToast(message) {
     setTimeout(() => {
         els.toast.classList.remove('show');
     }, 3000);
+}
+
+// Utility: HSV <-> RGB
+function hsvToRgb(h, s, v) {
+    let r, g, b;
+    const i = Math.floor(h / 60);
+    const f = h / 60 - i;
+    const p = v * (1 - s);
+    const q = v * (1 - f * s);
+    const t = v * (1 - (1 - f) * s);
+
+    switch (i % 6) {
+        case 0: r = v; g = t; b = p; break;
+        case 1: r = q; g = v; b = p; break;
+        case 2: r = p; g = v; b = t; break;
+        case 3: r = p; g = q; b = v; break;
+        case 4: r = t; g = p; b = v; break;
+        case 5: r = v; g = p; b = q; break;
+    }
+    return { r: Math.round(r * 255), g: Math.round(g * 255), b: Math.round(b * 255) };
+}
+
+function rgbToHsv(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    let h, s, v = max;
+    const d = max - min;
+    s = max === 0 ? 0 : d / max;
+
+    if (max === min) h = 0;
+    else {
+        switch (max) {
+            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+            case g: h = (b - r) / d + 2; break;
+            case b: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+    }
+    return { h: Math.round(h * 360), s, v };
+}
+
+function rgbToHex(r, g, b) {
+    return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
+}
+
+function setColorFromHex(hex) {
+    if (!/^#[0-9A-F]{6}$/i.test(hex)) return;
+
+    const r = parseInt(hex.substring(1, 3), 16);
+    const g = parseInt(hex.substring(3, 5), 16);
+    const b = parseInt(hex.substring(5, 7), 16);
+
+    setColorFromRGB(r, g, b);
+}
+
+function setColorFromRGB(r, g, b) {
+    currentColor.r = r;
+    currentColor.g = g;
+    currentColor.b = b;
+
+    const { h, s, v } = rgbToHsv(r, g, b);
+    currentColor.h = h;
+    currentColor.s = s;
+    currentColor.v = v;
+
+    updateColorUI();
+}
+
+function updateColorUI() {
+    // HSV to RGB
+    const { r, g, b } = hsvToRgb(currentColor.h, currentColor.s, currentColor.v);
+    currentColor.r = r;
+    currentColor.g = g;
+    currentColor.b = b;
+
+    const hex = rgbToHex(r, g, b);
+
+    const cp = els.colorPicker;
+
+    // Update Visuals
+    // Hue Thumb
+    cp.hueThumb.style.left = `${(currentColor.h / 360) * 100}%`;
+
+    // SV Cursor
+    cp.svCursor.style.left = `${currentColor.s * 100}%`;
+    cp.svCursor.style.top = `${(1 - currentColor.v) * 100}%`;
+    cp.svPanel.style.backgroundColor = `hsl(${currentColor.h}, 100%, 50%)`;
+
+    // Previews & Inputs
+    cp.previewBox.style.backgroundColor = hex;
+    cp.pickerPreview.style.backgroundColor = hex;
+
+    // Update Trigger Input
+    if (cp.triggerInput && document.activeElement !== cp.triggerInput) {
+        cp.triggerInput.value = hex;
+    }
+
+    cp.hiddenInput.value = hex;
+
+    cp.inputR.value = r;
+    cp.inputG.value = g;
+    cp.inputB.value = b;
+
+    // Update HEX input (without # prefix as per UI design)
+    if (cp.inputHex) {
+        // Avoid overwriting if user is typing (document.activeElement check could be added)
+        // But for simplicity, we update it. If conflict arises, we can add a check.
+        if (document.activeElement !== cp.inputHex) {
+            cp.inputHex.value = hex.substring(1);
+        }
+    }
+
+    // Save State
+    state.genForm.design = hex;
+    saveState();
+}
+
+let currentColor = { h: 210, s: 0.74, v: 0.69, r: 46, g: 102, b: 175 }; // Default base
+
+function setupColorPickerInteractions() {
+    const cp = els.colorPicker;
+
+    // Hue Slider Interaction
+    let isDraggingHue = false;
+    cp.hueSlider.addEventListener('mousedown', (e) => {
+        isDraggingHue = true;
+        updateHue(e);
+    });
+
+    // SV Panel Interaction
+    let isDraggingSV = false;
+    cp.svPanel.addEventListener('mousedown', (e) => {
+        isDraggingSV = true;
+        updateSV(e);
+    });
+
+    // Global Mouse Events for Dragging
+    document.addEventListener('mousemove', (e) => {
+        if (isDraggingHue) updateHue(e);
+        if (isDraggingSV) updateSV(e);
+    });
+
+    document.addEventListener('mouseup', () => {
+        isDraggingHue = false;
+        isDraggingSV = false;
+    });
+
+    // RGB Inputs
+    const updateFromRGB = () => {
+        const r = parseInt(cp.inputR.value) || 0;
+        const g = parseInt(cp.inputG.value) || 0;
+        const b = parseInt(cp.inputB.value) || 0;
+        setColorFromRGB(r, g, b);
+    };
+
+    [cp.inputR, cp.inputG, cp.inputB].forEach(input => {
+        input.addEventListener('input', updateFromRGB);
+    });
+
+    // HEX Input in Trigger
+    if (cp.triggerInput) {
+        // Prevent popover from opening when clicking input
+        cp.triggerInput.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        cp.triggerInput.addEventListener('change', (e) => {
+            let val = e.target.value.trim();
+            if (!val.startsWith('#')) val = '#' + val;
+
+            if (/^#[0-9A-F]{6}$/i.test(val)) {
+                setColorFromHex(val);
+            } else {
+                // Revert
+                const { r, g, b } = currentColor;
+                cp.triggerInput.value = rgbToHex(r, g, b);
+            }
+        });
+    }
+
+    // HEX Input in Popover
+    if (cp.inputHex) {
+        cp.inputHex.addEventListener('change', (e) => {
+            let val = e.target.value.trim();
+            if (val.startsWith('#')) val = val.substring(1);
+
+            if (/^[0-9A-F]{6}$/i.test(val)) {
+                setColorFromHex('#' + val);
+            } else {
+                // Revert to current valid hex if invalid
+                const { r, g, b } = currentColor;
+                cp.inputHex.value = rgbToHex(r, g, b).substring(1);
+            }
+        });
+
+        // Optional: Allow real-time update if valid length 6
+        cp.inputHex.addEventListener('input', (e) => {
+            let val = e.target.value.trim();
+            if (val.startsWith('#')) val = val.substring(1);
+            if (/^[0-9A-F]{6}$/i.test(val)) {
+                setColorFromHex('#' + val);
+            }
+        });
+    }
+
+    // Close popover on scroll (capture phase to catch all scrolling containers)
+    document.addEventListener('scroll', (e) => {
+        // Only close if it's not a scroll *inside* the popover (if popover ever becomes scrollable)
+        if (cp.popover && !cp.popover.classList.contains('hidden') && !cp.popover.contains(e.target)) {
+            cp.popover.classList.add('hidden');
+        }
+    }, { capture: true, passive: true });
+}
+
+function updateHue(e) {
+    const rect = els.colorPicker.hueSlider.getBoundingClientRect();
+    let x = e.clientX - rect.left;
+    x = Math.max(0, Math.min(x, rect.width));
+
+    const percent = x / rect.width;
+    currentColor.h = Math.round(percent * 360);
+
+    updateColorUI();
+}
+
+function updateSV(e) {
+    const rect = els.colorPicker.svPanel.getBoundingClientRect();
+    let x = e.clientX - rect.left;
+    let y = e.clientY - rect.top;
+
+    x = Math.max(0, Math.min(x, rect.width));
+    y = Math.max(0, Math.min(y, rect.height));
+
+    currentColor.s = x / rect.width;
+    currentColor.v = 1 - (y / rect.height);
+
+    updateColorUI();
 }
 
 
