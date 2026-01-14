@@ -94,7 +94,13 @@
             <main class="main-content">
                 <!-- Tab 1: Slide Support -->
                 <div id="slide-support-view" class="tab-content active">
-
+                    <div class="model-selector-container">
+                        <select id="model-select-support" class="model-select">
+                            <option value="gemini-high">Gemini 3 Pro (High)</option>
+                            <option value="gemini-mid">Gemini 3 Flash</option>
+                            <option value="gemini-lite">Gemini 3 Lite</option>
+                        </select>
+                    </div>
                     <div id="chat-history" class="chat-history">
                         <!-- Empty State -->
                         <div id="empty-state" class="empty-state">
@@ -207,67 +213,49 @@
                                 <span class="acc-title">デザイン <span class="optional-badge">任意</span></span>
                                 <span class="acc-arrow">▶</span>
                             </div>
-                            <div class="accordion-content">
-                                <!-- カラーピッカーのトリガー -->
-                                <div id="color-picker-trigger" class="color-picker-trigger">
-                                    <div class="color-preview" id="current-color-preview"></div>
-                                    <div class="color-info">
-                                        <span class="label">オブジェクトカラー</span>
-                                        <input type="text" class="trigger-hex-input" id="trigger-hex-input"
-                                            value="#2e66af" maxlength="7">
-                                    </div>
-                                </div>
-
-                                <!-- カラーピッカーのポップオーバー (初期非表示) -->
-                                <div id="color-picker-popover" class="color-picker-popover hidden">
-                                    <!-- SVパネル (彩度・明度) -->
-                                    <div class="sv-panel" id="sv-panel">
-                                        <div class="sv-cursor" id="sv-cursor"></div>
-                                        <div class="sv-bg-white"></div>
-                                        <div class="sv-bg-black"></div>
-                                    </div>
-
-                                    <!-- コントロールエリア -->
-                                    <div class="picker-controls">
-                                        <button id="eyedropper-btn" class="eyedropper-btn" title="スポイトツール">
-                                            <span>🖊️</span>
-                                        </button>
-                                        <div class="color-preview-circle" id="picker-preview-circle"></div>
-
-                                        <!-- 色相スライダー -->
-                                        <div class="hue-slider-container">
-                                            <div class="hue-slider" id="hue-slider">
-                                                <div class="hue-thumb" id="hue-thumb"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- RGB入力 -->
-                                    <div class="rgb-inputs">
-                                        <!-- HEX Input -->
-                                        <div class="hex-input-group">
-                                            <span class="hex-prefix">#</span>
-                                            <input type="text" id="input-hex" value="2E66AF" maxlength="6">
-                                        </div>
-                                        <div class="rgb-input-group">
-                                            <input type="number" id="input-r" min="0" max="255" value="46">
-                                            <label>R</label>
-                                        </div>
-                                        <div class="rgb-input-group">
-                                            <input type="number" id="input-g" min="0" max="255" value="102">
-                                            <label>G</label>
-                                        </div>
-                                        <div class="rgb-input-group">
-                                            <input type="number" id="input-b" min="0" max="255" value="175">
-                                            <label>B</label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <input type="hidden" id="gen-color" value="#2e66af">
+                            <div class="accordion-content hidden">
+                                <label>カラー選択</label>
+                                <select id="gen-color">
+                                    <option value="auto">未指定（自動）</option>
+                                    <option value="blue">ブルー（信頼）</option>
+                                    <option value="navy">ネイビー（堅実）</option>
+                                    <option value="green">グリーン（成長）</option>
+                                    <option value="red">レッド（情熱）</option>
+                                    <option value="orange">オレンジ（活気）</option>
+                                </select>
                             </div>
                         </div>
 
-
+                        <!-- 4. Options (Optional) -->
+                        <div class="accordion-item" id="acc-options">
+                            <div class="accordion-header">
+                                <span class="acc-title">オプション <span class="optional-badge">任意</span></span>
+                                <span class="acc-arrow">▶</span>
+                            </div>
+                            <div class="accordion-content hidden">
+                                <div class="form-group">
+                                    <label>ページ数目安</label>
+                                    <div class="segment-control">
+                                        <button class="segment" data-value="auto">自動</button>
+                                        <button class="segment" data-value="short">5-7P</button>
+                                        <button class="segment" data-value="medium">10-15P</button>
+                                        <button class="segment" data-value="long">20-30P</button>
+                                    </div>
+                                    <input type="hidden" id="gen-pages" value="auto">
+                                </div>
+                                <div class="form-group">
+                                    <label>追加コンテンツ</label>
+                                    <div class="checkbox-group">
+                                        <label class="checkbox-label"><input type="checkbox" value="graph"> グラフ</label>
+                                        <label class="checkbox-label"><input type="checkbox" value="gantt">
+                                            ガントチャート</label>
+                                        <label class="checkbox-label"><input type="checkbox" value="risk"> リスク分析</label>
+                                        <label class="checkbox-label"><input type="checkbox" value="budget">
+                                            予算計画</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                         <!-- 5. Reference (Optional) -->
                         <div class="accordion-item" id="acc-reference">
@@ -275,7 +263,7 @@
                                 <span class="acc-title">参考資料 <span class="optional-badge">任意</span></span>
                                 <span class="acc-arrow">▶</span>
                             </div>
-                            <div class="accordion-content">
+                            <div class="accordion-content hidden">
                                 <div class="file-upload-area" id="file-drop-zone">
                                     <div class="upload-placeholder">
                                         <span>📁 ファイルを選択またはドラッグ</span>
@@ -310,25 +298,10 @@
             <footer class="app-footer" id="app-footer">
                 <!-- Slide Support Footer -->
                 <div id="slide-support-footer" class="footer-content active">
-                    <div class="chat-input-container">
+                    <div class="chat-input-area">
+                        <button id="template-btn" class="icon-btn" title="よく使う指示">⚡</button>
                         <textarea id="chat-input" placeholder="スライドについて質問や指示を入力…" rows="1"></textarea>
-                        <div class="chat-controls-row">
-                            <button id="template-btn" class="icon-btn" title="よく使う指示">⚡</button>
-                            <div class="right-controls">
-                                <select id="model-select-support" class="model-select-footer">
-                                    <option value="gemini-high">Gemini 3 Pro (High)</option>
-                                    <option value="gemini-mid">Gemini 3 Flash</option>
-                                    <option value="gemini-lite">Gemini 3 Lite</option>
-                                </select>
-                                <button id="send-btn" class="send-btn-icon" disabled>
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M12 19V5M12 5L5 12M12 5L19 12" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
+                        <button id="send-btn" class="send-btn" disabled>送信</button>
                     </div>
                 </div>
 
