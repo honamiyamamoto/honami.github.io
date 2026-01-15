@@ -185,16 +185,36 @@ body {
 
 .target-menu {
     position: absolute;
-    top: 100%;
-    right: 0;
-    margin-top: 4px;
-    background: white;
-    border: 1px solid var(--border-color);
+    /* top: 100%;  Removed to flip direction */
+    top: auto;
+    bottom: 100%;
+    /* Open upwards */
+    left: 0;
+    /* Or adjust to fit */
+    width: 220px;
+    background: #111827;
+    /* Dark bg */
+    border: 1px solid #6B7280;
+    /* Lighter border for visibility */
     border-radius: 6px;
-    box-shadow: var(--shadow-md);
-    z-index: 100;
-    width: 140px;
+    margin-top: 0;
+    margin-bottom: 8px;
+    /* Spacing from trigger */
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+    /* Ensure topmost */
     overflow: hidden;
+}
+
+.selector-dropdown .dropdown-header {
+    padding: 8px 12px;
+    font-size: 11px;
+    color: #9CA3AF;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background-color: #1F2937;
+    border-bottom: 1px solid #374151;
 }
 
 .menu-item {
@@ -262,6 +282,9 @@ body {
     /* Disable scrolling on main container */
     display: flex;
     flex-direction: column;
+    height: 100%;
+    /* Explicit height constraint */
+    min-height: 0;
 }
 
 .tab-content {
@@ -269,7 +292,10 @@ body {
     flex: 1;
     min-height: 0;
     flex-direction: column;
-    /* content usually needs flex to organize children (chat vs panel) */
+    height: 100%;
+    /* Explicit height constraint */
+    overflow: hidden;
+    /* Prevent overflow */
 }
 
 .tab-content.active {
@@ -278,17 +304,29 @@ body {
 }
 
 /* Slide Support Content */
+/* Chat Workspace */
+.chat-workspace {
+    display: flex;
+    flex-direction: column;
+    /* Vertical stack */
+    height: 100%;
+    /* Ensure it fills parent */
+    min-height: 0;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+}
+
 .chat-history {
     padding: var(--spacing-md);
     display: flex;
     flex-direction: column;
     gap: var(--spacing-md);
-    flex: 1;
-    /* Take remaining space */
+    flex: 1 1 0;
+    /* Grow, Shrink, Basis 0 to force resize */
     overflow-y: auto;
-    /* Scrollable */
     min-height: 0;
-    /* Important for nested flex scroll */
+    min-width: 0;
 }
 
 .empty-state {
@@ -394,17 +432,43 @@ body {
 /* Template Panel */
 .template-panel {
     display: flex;
-    /* overridden by .hidden */
     flex-direction: column;
-    height: 300px;
-    /* Default height */
+    width: 100%;
+    height: 250px;
+    /* Initial height */
     border-top: 1px solid var(--border-color);
+    border-left: none;
     background: var(--surface-color);
     flex-shrink: 0;
 }
 
 .template-panel.hidden {
     display: none !important;
+}
+
+#resizer-template {
+    width: 100%;
+    height: 6px;
+    cursor: row-resize;
+    background-color: transparent;
+    border-top: 1px solid transparent;
+    /* invisible border for hit area */
+    flex-shrink: 0;
+    margin-top: -3px;
+    /* overlap slightly */
+    margin-bottom: -3px;
+    z-index: 10;
+    position: relative;
+}
+
+#resizer-template.hidden {
+    display: none !important;
+}
+
+#resizer-template:hover,
+#resizer-template.resizing {
+    background-color: var(--primary-color);
+    opacity: 0.5;
 }
 
 .template-panel .panel-header {
@@ -822,11 +886,11 @@ select {
     background-color: white;
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    height: 100%;
-    /* Fill the footer content */
+    /* transition: border-color 0.2s, box-shadow 0.2s; */
+    /* Remove height: 100% since controls are out */
     flex: 1;
+    /* Allow it to grow in the footer flex container */
+    margin-bottom: 0;
 }
 
 .chat-input-container:focus-within {
@@ -843,11 +907,9 @@ select {
     font-size: 14px;
     resize: none;
     min-height: 24px;
-    /* max-height removed to allow full expansion */
     outline: none;
     box-shadow: none;
     flex: 1;
-    /* Take up remaining space */
 }
 
 .chat-controls-row {
@@ -855,9 +917,15 @@ select {
     justify-content: space-between;
     align-items: center;
     flex-shrink: 0;
-    /* Prevent shrinking */
-    margin-top: auto;
-    /* Push to bottom if needed, though flex:1 on input does the job */
+    margin-top: 8px;
+    /* Spacing between input box and controls */
+}
+
+.right-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    /* Spacing between model selector and send button */
 }
 
 /* Resizers */
@@ -1064,6 +1132,39 @@ select {
 }
 
 
+/* Template Button Refinement - Reverted to standard */
+#template-btn.icon-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background-color: transparent;
+    color: var(--text-secondary);
+    /* Reverted to neutral */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+    padding: 0;
+}
+
+#template-btn.icon-btn:hover {
+    background-color: #F3F4F6;
+    /* Standard hover */
+    color: var(--text-primary);
+}
+
+#template-btn.icon-btn svg {
+    width: 20px;
+    /* Standard size */
+    height: 20px;
+    fill: none;
+    /* Reverted to stroke */
+    stroke: currentColor;
+    stroke-width: 2;
+}
+
 /* New Send Button Style */
 .send-btn-icon {
     width: 32px;
@@ -1094,8 +1195,94 @@ select {
     transform: none;
 }
 
-.generate-btn {
+/* Dropdown Styling */
+.selector-dropdown {
+    position: absolute;
+    /* Critical for overlay */
+    top: auto;
+    bottom: 100%;
+    /* Open upwards */
+    left: auto;
+    right: 0;
+    width: 300px;
+
+    /* Design: Light Theme & Rounded */
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+
+    z-index: 10000;
+    margin-top: 0;
+    margin-bottom: 8px;
+    /* Spacing from trigger */
+    padding: 6px 0;
+    transform-origin: bottom right;
+}
+
+.selector-dropdown .dropdown-header {
+    padding: 8px 16px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #6b7280;
+    /* Gray text */
+    background: transparent;
+    border-bottom: 1px solid #f3f4f6;
+    letter-spacing: 0.05em;
+}
+
+/* Custom Model Selector */
+.custom-model-selector {
+    position: relative;
+    height: auto;
+    min-height: fit-content;
+    min-width: 200px;
+    /* Widened from 180px */
+}
+
+/* ... existing trigger styles ... */
+
+/* Doc Generation Footer Specifics */
+#doc-generation-footer {
+    flex-direction: column;
+    /* Vertical layout */
+    gap: 0;
+    /* Handled by margin on controls row */
+    align-items: stretch;
+    overflow: visible;
+    /* Allow dropdown to pop out */
+}
+
+.doc-gen-controls-row {
+    display: flex;
+    justify-content: flex-end;
+    /* Align to right */
+    align-items: center;
+    margin-top: 8px;
     width: 100%;
+    /* Ensure full width for right alignment */
+    padding-right: 16px;
+    /* Prevent clipping */
+    box-sizing: border-box;
+}
+
+/* Model Option Styling */
+.model-option {
+    padding: 12px 20px;
+    /* Increased padding */
+    color: #374151;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.15s;
+}
+
+.generate-btn {
+    /* width: 100%; Default block */
+    flex: none;
+    /* Don't flex resize */
     padding: 12px;
     background-color: var(--primary-color);
     color: white;
@@ -1108,6 +1295,8 @@ select {
     justify-content: center;
     align-items: center;
     gap: 8px;
+    height: 42px;
+    /* Match model selector height approx */
 }
 
 .generate-btn:disabled {
