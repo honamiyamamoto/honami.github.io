@@ -94,90 +94,82 @@
             <main class="main-content">
                 <!-- Tab 1: Slide Support -->
                 <div id="slide-support-view" class="tab-content active">
-                    <div class="model-selector-container">
-                        <select id="model-select-support" class="model-select">
-                            <option value="gemini-high">Gemini 3 Pro (High)</option>
-                            <option value="gemini-mid">Gemini 3 Flash</option>
-                            <option value="gemini-lite">Gemini 3 Lite</option>
-                        </select>
-                    </div>
-                    <div id="chat-history" class="chat-history">
-                        <!-- Empty State -->
-                        <div id="empty-state" class="empty-state">
-                            <div class="empty-icon">
-                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z"
-                                        stroke="#9CA3AF" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round" />
-                                </svg>
-                            </div>
-                            <h3>AI スライドアシスタント</h3>
-                            <p>スライドの改善や分析をサポートします</p>
-                        </div>
-                    </div>
 
-                    <!-- Template Panel (Overlay) -->
-                    <div id="template-panel" class="template-panel hidden">
-                        <div id="resizer-template" class="resizer-horizontal"></div>
-                        <div class="panel-header">
-                            <h3>よく使う指示</h3>
-                            <div class="panel-actions">
-                                <button id="add-template-btn" class="icon-btn-small" title="追加">＋</button>
-                                <button id="close-template-panel" class="close-btn">×</button>
+                    <div class="chat-workspace">
+                        <div id="chat-history" class="chat-history">
+                            <!-- Empty State -->
+                            <div id="empty-state" class="empty-state">
+                                <div class="empty-icon">
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path
+                                            d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z"
+                                            stroke="#9CA3AF" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round" />
+                                    </svg>
+                                </div>
+                                <h3>AI スライドアシスタント</h3>
+                                <p>スライドの改善や分析をサポートします</p>
                             </div>
                         </div>
-                        <div class="template-list">
 
-                            <button class="template-item" data-text="このスライドのタイトル案を5つ提案して">
-                                <span class="icon">📝</span>
-                                <div class="text">
-                                    <span class="title">タイトル生成</span>
-                                    <span class="desc">メッセージ性の高いタイトルを提案</span>
+                        <!-- Resizer -->
+                        <div id="resizer-template" class="resizer-horizontal hidden"></div>
+
+                        <!-- Template Panel -->
+                        <div id="template-panel" class="template-panel hidden">
+                            <div class="panel-header">
+                                <h3>よく使う指示</h3>
+                                <div class="panel-actions">
+                                    <button id="add-template-btn" class="icon-btn-small" title="追加">＋</button>
+                                    <button id="close-template-panel" class="close-btn">×</button>
                                 </div>
-                            </button>
-                            <button class="template-item" data-text="この内容を構造化して整理して">
-                                <span class="icon">🏗️</span>
-                                <div class="text">
-                                    <span class="title">構造化</span>
-                                    <span class="desc">論点を整理してスライド構造にする</span>
-                                </div>
-                            </button>
-                            <button class="template-item" data-text="このスライドの品質をチェックして指摘して">
-                                <span class="icon">✅</span>
-                                <div class="text">
-                                    <span class="title">品質チェック</span>
-                                    <span class="desc">抜け漏れや分かりにくさを指摘</span>
-                                </div>
-                            </button>
-                            <button class="template-item" data-text="この内容を経営層向けに要約して">
-                                <span class="icon">✂️</span>
-                                <div class="text">
-                                    <span class="title">要約作成</span>
-                                    <span class="desc">経営層向けに短くする</span>
-                                </div>
-                            </button>
-                            <button class="template-item" data-text="このデータから何が言えるかインサイトを出して">
-                                <span class="icon">💡</span>
-                                <div class="text">
-                                    <span class="title">インサイト抽出</span>
-                                    <span class="desc">示唆を文章化する</span>
-                                </div>
-                            </button>
+                            </div>
+                            <div class="template-list">
+
+                                <button class="template-item" data-text="このスライドのタイトル案を5つ提案して">
+                                    <span class="icon">📝</span>
+                                    <div class="text">
+                                        <span class="title">タイトル生成</span>
+                                        <span class="desc">メッセージ性の高いタイトルを提案</span>
+                                    </div>
+                                </button>
+                                <button class="template-item" data-text="この内容を構造化して整理して">
+                                    <span class="icon">🏗️</span>
+                                    <div class="text">
+                                        <span class="title">構造化</span>
+                                        <span class="desc">論点を整理してスライド構造にする</span>
+                                    </div>
+                                </button>
+                                <button class="template-item" data-text="このスライドの品質をチェックして指摘して">
+                                    <span class="icon">✅</span>
+                                    <div class="text">
+                                        <span class="title">品質チェック</span>
+                                        <span class="desc">抜け漏れや分かりにくさを指摘</span>
+                                    </div>
+                                </button>
+                                <button class="template-item" data-text="この内容を経営層向けに要約して">
+                                    <span class="icon">✂️</span>
+                                    <div class="text">
+                                        <span class="title">要約作成</span>
+                                        <span class="desc">経営層向けに短くする</span>
+                                    </div>
+                                </button>
+                                <button class="template-item" data-text="このデータから何が言えるかインサイトを出して">
+                                    <span class="icon">💡</span>
+                                    <div class="text">
+                                        <span class="title">インサイト抽出</span>
+                                        <span class="desc">示唆を文章化する</span>
+                                    </div>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Tab 2: Document Generation -->
                 <div id="doc-generation-view" class="tab-content">
-                    <div class="model-selector-container">
-                        <select id="model-select-gen" class="model-select">
-                            <option value="gemini-high">Gemini 3 Pro (High)</option>
-                            <option value="gemini-mid">Gemini 3 Flash</option>
-                            <option value="gemini-lite">Gemini 3 Lite</option>
-                        </select>
-                    </div>
+
 
                     <div class="accordion-container">
                         <!-- 1. Instruction (Required) -->
@@ -213,49 +205,67 @@
                                 <span class="acc-title">デザイン <span class="optional-badge">任意</span></span>
                                 <span class="acc-arrow">▶</span>
                             </div>
-                            <div class="accordion-content hidden">
-                                <label>カラー選択</label>
-                                <select id="gen-color">
-                                    <option value="auto">未指定（自動）</option>
-                                    <option value="blue">ブルー（信頼）</option>
-                                    <option value="navy">ネイビー（堅実）</option>
-                                    <option value="green">グリーン（成長）</option>
-                                    <option value="red">レッド（情熱）</option>
-                                    <option value="orange">オレンジ（活気）</option>
-                                </select>
+                            <div class="accordion-content">
+                                <!-- カラーピッカーのトリガー -->
+                                <div id="color-picker-trigger" class="color-picker-trigger">
+                                    <div class="color-preview" id="current-color-preview"></div>
+                                    <div class="color-info">
+                                        <span class="label">オブジェクトカラー</span>
+                                        <input type="text" class="trigger-hex-input" id="trigger-hex-input"
+                                            value="#2e66af" maxlength="7">
+                                    </div>
+                                </div>
+
+                                <!-- カラーピッカーのポップオーバー (初期非表示) -->
+                                <div id="color-picker-popover" class="color-picker-popover hidden">
+                                    <!-- SVパネル (彩度・明度) -->
+                                    <div class="sv-panel" id="sv-panel">
+                                        <div class="sv-cursor" id="sv-cursor"></div>
+                                        <div class="sv-bg-white"></div>
+                                        <div class="sv-bg-black"></div>
+                                    </div>
+
+                                    <!-- コントロールエリア -->
+                                    <div class="picker-controls">
+                                        <button id="eyedropper-btn" class="eyedropper-btn" title="スポイトツール">
+                                            <span>🖊️</span>
+                                        </button>
+                                        <div class="color-preview-circle" id="picker-preview-circle"></div>
+
+                                        <!-- 色相スライダー -->
+                                        <div class="hue-slider-container">
+                                            <div class="hue-slider" id="hue-slider">
+                                                <div class="hue-thumb" id="hue-thumb"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- RGB入力 -->
+                                    <div class="rgb-inputs">
+                                        <!-- HEX Input -->
+                                        <div class="hex-input-group">
+                                            <span class="hex-prefix">#</span>
+                                            <input type="text" id="input-hex" value="2E66AF" maxlength="6">
+                                        </div>
+                                        <div class="rgb-input-group">
+                                            <input type="number" id="input-r" min="0" max="255" value="46">
+                                            <label>R</label>
+                                        </div>
+                                        <div class="rgb-input-group">
+                                            <input type="number" id="input-g" min="0" max="255" value="102">
+                                            <label>G</label>
+                                        </div>
+                                        <div class="rgb-input-group">
+                                            <input type="number" id="input-b" min="0" max="255" value="175">
+                                            <label>B</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="gen-color" value="#2e66af">
                             </div>
                         </div>
 
-                        <!-- 4. Options (Optional) -->
-                        <div class="accordion-item" id="acc-options">
-                            <div class="accordion-header">
-                                <span class="acc-title">オプション <span class="optional-badge">任意</span></span>
-                                <span class="acc-arrow">▶</span>
-                            </div>
-                            <div class="accordion-content hidden">
-                                <div class="form-group">
-                                    <label>ページ数目安</label>
-                                    <div class="segment-control">
-                                        <button class="segment" data-value="auto">自動</button>
-                                        <button class="segment" data-value="short">5-7P</button>
-                                        <button class="segment" data-value="medium">10-15P</button>
-                                        <button class="segment" data-value="long">20-30P</button>
-                                    </div>
-                                    <input type="hidden" id="gen-pages" value="auto">
-                                </div>
-                                <div class="form-group">
-                                    <label>追加コンテンツ</label>
-                                    <div class="checkbox-group">
-                                        <label class="checkbox-label"><input type="checkbox" value="graph"> グラフ</label>
-                                        <label class="checkbox-label"><input type="checkbox" value="gantt">
-                                            ガントチャート</label>
-                                        <label class="checkbox-label"><input type="checkbox" value="risk"> リスク分析</label>
-                                        <label class="checkbox-label"><input type="checkbox" value="budget">
-                                            予算計画</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+
 
                         <!-- 5. Reference (Optional) -->
                         <div class="accordion-item" id="acc-reference">
@@ -263,7 +273,7 @@
                                 <span class="acc-title">参考資料 <span class="optional-badge">任意</span></span>
                                 <span class="acc-arrow">▶</span>
                             </div>
-                            <div class="accordion-content hidden">
+                            <div class="accordion-content">
                                 <div class="file-upload-area" id="file-drop-zone">
                                     <div class="upload-placeholder">
                                         <span>📁 ファイルを選択またはドラッグ</span>
@@ -298,19 +308,116 @@
             <footer class="app-footer" id="app-footer">
                 <!-- Slide Support Footer -->
                 <div id="slide-support-footer" class="footer-content active">
-                    <div class="chat-input-area">
-                        <button id="template-btn" class="icon-btn" title="よく使う指示">⚡</button>
+                    <div class="chat-input-container">
                         <textarea id="chat-input" placeholder="スライドについて質問や指示を入力…" rows="1"></textarea>
-                        <button id="send-btn" class="send-btn" disabled>送信</button>
+                    </div>
+                    <div class="chat-controls-row">
+                        <button id="template-btn" class="icon-btn" title="よく使う指示">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </button>
+                        <div class="right-controls">
+                            <!-- Custom Model Selector -->
+                            <div class="custom-model-selector" id="model-selector-custom">
+                                <div class="selector-trigger" id="model-trigger" tabindex="0">
+                                    <span class="selected-model-name" id="selected-model-text">Gemini 3 Pro
+                                        (High)</span>
+                                    <svg class="selector-arrow" width="10" height="6" viewBox="0 0 10 6" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M1 1L5 5L9 1" stroke="#9CA3AF" stroke-width="1.5"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </div>
+                                <div class="selector-dropdown hidden" id="model-dropdown">
+                                    <div class="dropdown-header">Model</div>
+                                    <div class="model-option selected" data-value="gemini-high">
+                                        <span class="opt-name">Gemini 3 Pro (High)</span>
+                                    </div>
+                                    <div class="model-option" data-value="gemini-low">
+                                        <span class="opt-name">Gemini 3 Pro (Low)</span>
+                                    </div>
+                                    <div class="model-option" data-value="gemini-mid">
+                                        <span class="opt-name">Gemini 3 Flash</span>
+                                        <span class="opt-badge new">New</span>
+                                    </div>
+                                    <div class="model-option" data-value="claude-3-5-sonnet">
+                                        <span class="opt-name">Claude Sonnet 4.5</span>
+                                    </div>
+                                    <div class="model-option" data-value="claude-3-5-sonnet-thinking">
+                                        <span class="opt-name">Claude Sonnet 4.5 (Thinking)</span>
+                                    </div>
+                                    <div class="model-option" data-value="claude-3-opus-thinking">
+                                        <span class="opt-name">Claude Opus 4.5 (Thinking)</span>
+                                    </div>
+                                    <div class="model-option" data-value="gpt-oss">
+                                        <span class="opt-name">GPT-OSS 120B (Medium)</span>
+                                    </div>
+                                </div>
+                                <!-- Hidden select for form compatibility if needed, keeping state in JS mainly -->
+                                <input type="hidden" id="model-select-support" value="gemini-high">
+                            </div>
+                            <button id="send-btn" class="send-btn-icon" disabled>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 19V5M12 5L5 12M12 5L19 12" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
+                <!-- Doc Generation Footer -->
                 <!-- Doc Generation Footer -->
                 <div id="doc-generation-footer" class="footer-content">
                     <button id="generate-btn" class="generate-btn" disabled>
                         <span class="btn-text">資料を生成</span>
                         <span class="spinner hidden"></span>
                     </button>
+
+                    <div class="doc-gen-controls-row">
+                        <!-- Custom Model Selector (Gen) -->
+                        <div class="custom-model-selector" id="model-selector-gen">
+                            <div class="selector-trigger" id="model-trigger-gen" tabindex="0">
+                                <span class="selected-model-name" id="selected-model-text-gen">Gemini 3 Pro
+                                    (High)</span>
+                                <svg class="selector-arrow" width="10" height="6" viewBox="0 0 10 6" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M1 1L5 5L9 1" stroke="#9CA3AF" stroke-width="1.5" stroke-linecap="round"
+                                        stroke-linejoin="round" />
+                                </svg>
+                            </div>
+                            <div class="selector-dropdown hidden" id="model-dropdown-gen">
+                                <div class="dropdown-header">Model</div>
+                                <div class="model-option selected" data-value="gemini-high">
+                                    <span class="opt-name">Gemini 3 Pro (High)</span>
+                                </div>
+                                <div class="model-option" data-value="gemini-low">
+                                    <span class="opt-name">Gemini 3 Pro (Low)</span>
+                                </div>
+                                <div class="model-option" data-value="gemini-mid">
+                                    <span class="opt-name">Gemini 3 Flash</span>
+                                    <span class="opt-badge new">New</span>
+                                </div>
+                                <div class="model-option" data-value="claude-3-5-sonnet">
+                                    <span class="opt-name">Claude Sonnet 4.5</span>
+                                </div>
+                                <div class="model-option" data-value="claude-3-5-sonnet-thinking">
+                                    <span class="opt-name">Claude Sonnet 4.5 (Thinking)</span>
+                                </div>
+                                <div class="model-option" data-value="claude-3-opus-thinking">
+                                    <span class="opt-name">Claude Opus 4.5 (Thinking)</span>
+                                </div>
+                                <div class="model-option" data-value="gpt-oss">
+                                    <span class="opt-name">GPT-OSS 120B (Medium)</span>
+                                </div>
+                            </div>
+                            <input type="hidden" id="model-select-gen" value="gemini-high">
+                        </div>
+                    </div>
                 </div>
             </footer>
         </div>
