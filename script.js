@@ -89,15 +89,27 @@ function cacheDomElements() {
         closeTemplateBtn: document.getElementById('close-template-panel'),
         addTemplateBtn: document.getElementById('add-template-btn'),
         templateList: document.getElementById('template-list') || document.querySelector('.template-list'),
-        modelSelectSupport: document.getElementById('model-select-support'),
 
-        // 資料生成（Doc Generation）タブ
-        accordions: document.querySelectorAll('.accordion-header'),
-        inputs: {
-            instruction: document.getElementById('gen-instruction'),
-            usage: document.getElementById('gen-usage'),
-            // removed old select
+        // Custom Model Selector (Slide Support)
+        modelSelectorSupport: {
+            container: document.getElementById('model-selector-custom'),
+            trigger: document.getElementById('model-trigger'),
+            dropdown: document.getElementById('model-dropdown'),
+            selectedText: document.getElementById('selected-model-text'),
+            options: document.querySelectorAll('#model-dropdown .model-option'),
+            hiddenInput: document.getElementById('model-select-support')
         },
+
+        // Custom Model Selector (Doc Generation)
+        modelSelectorGen: {
+            container: document.getElementById('model-selector-gen'),
+            trigger: document.getElementById('model-trigger-gen'),
+            dropdown: document.getElementById('model-dropdown-gen'),
+            selectedText: document.getElementById('selected-model-text-gen'),
+            options: document.querySelectorAll('#model-dropdown-gen .model-option'),
+            hiddenInput: document.getElementById('model-select-gen')
+        },
+
         // Color Picker Elements
         colorPicker: {
             trigger: document.getElementById('color-picker-trigger'),
@@ -120,7 +132,8 @@ function cacheDomElements() {
             inputB: document.getElementById('input-b'),
             inputHex: document.getElementById('input-hex')
         },
-        tiles: document.querySelectorAll('.tile-option'),
+
+        // 資料生成（Doc Generation）タブ
         tiles: document.querySelectorAll('.tile-option'),
         generateBtn: document.getElementById('generate-btn'),
         modelSelectGen: document.getElementById('model-select-gen'),
@@ -147,6 +160,13 @@ function cacheDomElements() {
         templateBodyInput: document.getElementById('tmpl-body'),
         templateCancelBtn: document.getElementById('tmpl-cancel'),
         templateSaveBtn: document.getElementById('tmpl-save'),
+
+        // 資料生成フォーム入力
+        accordions: document.querySelectorAll('.accordion-header'),
+        inputs: {
+            instruction: document.getElementById('gen-instruction'),
+            usage: document.getElementById('gen-usage'),
+        }
     };
 
     // 必須DOMが欠落している場合は早期に警告する（Fail Fast）
@@ -176,17 +196,28 @@ function initResizers() {
     setupResizer('resizer-footer', 'vertical', (dx, dy, startWidth, startHeight, target) => {
         const newHeight = startHeight - dy;
         console.log(`Footer Resize: dy=${dy}, newHeight=${newHeight}`);
-        if (newHeight > 60 && newHeight < 400) {
+        if (newHeight > 120 && newHeight < 400) {
             target.style.height = `${newHeight}px`;
         }
     }, () => document.getElementById('app-footer'));
 
-    // 3. テンプレートパネルの横方向リサイザー
+    // 3. テンプレートパネルのリサイザー（修正: 垂直配置 / 高さ調整）
     setupResizer('resizer-template', 'vertical', (dx, dy, startWidth, startHeight, target) => {
+        // resizerはパネルの上端にある。
+        // ドラッグで上(マイナス)に行けば、パネルは広がる（高くなる）。
+        // newHeight = startHeight - dy
         const newHeight = startHeight - dy;
         console.log(`Template Resize: dy=${dy}, newHeight=${newHeight}`);
-        if (newHeight > 100 && newHeight < window.innerHeight - 100) {
+
+        if (newHeight > 100 && newHeight < 600) {
             target.style.height = `${newHeight}px`;
+            // Flexbox (column) なので、チャット履歴は自動的に高さが調節される
+
+            // リサイズ中もスクロール位置を追従させる
+            const chatHistory = document.getElementById('chat-history');
+            if (chatHistory) {
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+            }
         }
     }, () => document.getElementById('template-panel'));
 }
@@ -337,13 +368,38 @@ function attachEventListeners() {
 
     els.sendBtn.addEventListener('click', sendMessage);
 
+    // Helper: Scroll chat history to bottom
+    const scrollToBottom = () => {
+        const chatHistory = document.getElementById('chat-history');
+        if (chatHistory) {
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+    };
+
     // テンプレートパネルの表示切り替え
     els.templateBtn.addEventListener('click', () => {
-        els.templatePanel.classList.toggle('hidden');
+        const isHidden = els.templatePanel.classList.contains('hidden');
+        if (isHidden) {
+            els.templatePanel.classList.remove('hidden');
+            if (document.getElementById('resizer-template')) {
+                document.getElementById('resizer-template').classList.remove('hidden');
+            }
+        } else {
+            els.templatePanel.classList.add('hidden');
+            if (document.getElementById('resizer-template')) {
+                document.getElementById('resizer-template').classList.add('hidden');
+            }
+        }
+        // パネル開閉時にスクロール位置を調整
+        setTimeout(scrollToBottom, 50); // レイアウト反映待ち
     });
 
     els.closeTemplateBtn.addEventListener('click', () => {
         els.templatePanel.classList.add('hidden');
+        if (document.getElementById('resizer-template')) {
+            document.getElementById('resizer-template').classList.add('hidden');
+        }
+        setTimeout(scrollToBottom, 50);
     });
 
     // カスタムテンプレート追加機能 -> モーダル表示
@@ -600,14 +656,62 @@ function attachEventListeners() {
         startGeneration();
     });
 
-    // モデル選択時のログ出力
-    els.modelSelectSupport.addEventListener('change', (e) => {
-        // 必要に応じてステート保存するが、現状はログのみ
-        console.log('Model switched (Support): ' + e.target.value);
-    });
-    els.modelSelectGen.addEventListener('change', (e) => {
-        console.log('Model switched (Gen): ' + e.target.value);
-    });
+    // ... existing code ...
+    // Custom Model Selector
+    // Custom Model Selector logic handled below in setupCustomModelSelector
+
+
+    // Custom Model Selector Logic (Reusable)
+    const setupCustomModelSelector = (selectorEls, logPrefix = 'Model switched') => {
+        const { trigger, dropdown, options, selectedText, hiddenInput, container } = selectorEls;
+
+        if (!trigger || !dropdown) return;
+
+        // Toggle
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            // 他のドロップダウンを閉じる処理入れたほうが良いが、一旦簡易実装
+            dropdown.classList.toggle('hidden');
+        });
+
+        // Close outside
+        document.addEventListener('click', (e) => {
+            if (container && !container.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        // Selection
+        options.forEach(opt => {
+            opt.addEventListener('click', () => {
+                const value = opt.dataset.value;
+                const name = opt.querySelector('.opt-name').textContent;
+
+                // Update UI
+                selectedText.textContent = name;
+
+                // Update State/Input
+                if (hiddenInput) {
+                    hiddenInput.value = value;
+                    // Trigger change event if needed for other listeners
+                    hiddenInput.dispatchEvent(new Event('change'));
+                }
+
+                // Update active class
+                options.forEach(o => o.classList.remove('selected'));
+                opt.classList.add('selected');
+
+                // Close
+                dropdown.classList.add('hidden');
+
+                console.log(`${logPrefix}: ${value}`);
+            });
+        });
+    };
+
+    // Initialize both selectors
+    setupCustomModelSelector(els.modelSelectorSupport, 'Model switched (Support)');
+    setupCustomModelSelector(els.modelSelectorGen, 'Model switched (Gen)');
 }
 
 // --- ロジック実装 ---
